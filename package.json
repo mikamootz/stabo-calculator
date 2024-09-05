@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build": "npm run build:css && npm run build:js",
-    "build:css": "postcss src/css/style.css -o dist/css/style.css",
-    "build:js": "webpack --config webpack.config.js"
+    "build:css": "postcss src/css/style.css -o dist/css/style.css"
   },
   "keywords": [],
   "author": "",
