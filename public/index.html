@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preiskalkulator</title>
+    <link href="/dist/output.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100 font-sans h-full">        
+    <!-- Kostenaufschlüsselung (Cost Breakdown) -->
+    <div class="absolute top-10 right-[-50px] bg-white shadow-md p-6 rounded-lg border border-gray-200 w-[300px] z-50">
+        <h3 class="text-xl font-semibold text-gray-700 mb-6">Kostenaufschlüsselung</h3>
+        <table class="table-auto w-full max-w-2xl">
+            <tbody>
+                <tr>
+                    <td class="px-6 py-4 text-gray-800 text-xl">Kilometerpreis</td>
+                    <td class="px-6 py-4 text-gray-800 text-xl"><span id="kilometerPrice"></span></td>
+                    <td class="px-6 py-4 text-gray-800 text-xl">€</td>
+                </tr>
+                <tr>
+                    <td class="px-6 py-4 text-gray-800 text-xl">Zeitpreis</td>
+                    <td class="px-6 py-4 text-gray-800 text-xl"><span id="timePrice"></span></td>
+                    <td class="px-6 py-4 text-gray-800 text-xl">€</td>
+                </tr>
+                <tr>
+                    <td class="px-6 py-4 text-gray-800 text-xl">+TSZ</td>
+                    <td class="px-6 py-4 text-gray-800 text-xl"><span id="priceDetails"></span></td>
+                    <td class="px-6 py-4 text-gray-800 text-xl">€</td>
+                </tr>
+                <tr>
+                    <td class="px-6 py-4 text-gray-800 text-xl font-bold">Gesamtpreis</td>
+                    <td class="px-6 py-4 text-gray-800 text-xl font-bold"><span id="totalPrice"></span></td>
+                    <td class="px-6 py-4 text-gray-800 text-xl font-bold">€</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-10 relative min-h-[500px]">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Fahrpreiskalkulator</h1>
+
+        <!-- Adresseneingabe -->
+        <h3 class="text-xl font-semibold text-gray-700 mb-4">Start und Zieladresse eingeben</h3>
+        <div class="isolate -space-y-px rounded-md shadow-sm">
+            <div class="relative rounded-md rounded-b-none px-3 pb-1.5 pt-2.5 ring-1 ring-inset ring-gray-300 focus-within:z-10 focus-within:ring-2 focus-within:ring-indigo-600">
+                <label for="startadresse" class="block text-xs font-medium text-gray-900">Startadresse</label>
+                <input type="text" name="startadresse" id="startAddress" class="block w-full border-0 p-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-m sm:leading-6" placeholder="Gib eine Startadresse ein">
+            </div>
+            <div class="relative rounded-md rounded-t-none px-3 pb-1.5 pt-2.5 ring-1 ring-inset ring-gray-300 focus-within:z-10 focus-within:ring-2 focus-within:ring-indigo-600">
+                <label for="startadresse" class="block text-xs font-medium text-gray-900">Zieladresse</label>
+                <input type="text" name="zieladresse" id="endAddress" class="block w-full border-0 p-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-m sm:leading-6" placeholder="Gib eine Zieladresse ein">
+            </div>
+        </div>
+        <div class="flex space-x-4 mt-6">
+            <button onclick="calculateRoute()" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Route berechnen</button>
+        </div>
+
+        <!-- Generelle Eingabefelder -->
+        <h3 class="text-xl font-semibold text-gray-700 mb-4">Generelle Eingaben</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="mb-4">
+                <label for="kilometers" class="block text-gray-600 mb-2">Kilometer:</label>
+                <input type="number" id="kilometers" value="0" class="w-full p-2 border border-gray-300 rounded-md">
+            </div>
+            <div class="mb-4">
+                <label for="time" class="block text-gray-600 mb-2">Zeit (in Minuten):</label>
+                <input type="number" id="time" value="0" class="w-full p-2 border border-gray-300 rounded-md">
+            </div>
+            <div class="mb-4">
+                <label for="stops" class="block text-gray-600 mb-2">Anzahl der Stopps:</label>
+                <input type="number" id="stops" value="0" class="w-full p-2 border border-gray-300 rounded-md">
+            </div>
+            <div class="mb-4">
+                <label for="tsz" class="block text-gray-600 mb-2">TSZ (in %):</label>
+                <input type="number" id="tsz" value="0" class="w-full p-2 border border-gray-300 rounded-md">
+            </div>
+        </div>
+
+        <!-- Fahrzeugauswahl -->
+        <h3 class="text-xl font-semibold text-gray-700 mb-4">Fahrzeugtyp</h3>
+        <div class="mb-6">
+            <label for="vehicleType" class="block text-gray-600 mb-2">Fahrzeugtyp auswählen:</label>
+            <select id="vehicleType" onchange="updateVehicleSpecificFields(); calculateTotal();" class="w-full md:w-1/2 p-2 border border-gray-300 rounded-md">
+                <option value="PKW">PKW</option>
+                <option value="Kombi">Kombi</option>
+                <option value="Kastenwagen">Kastenwagen</option>
+                <option value="Transporter">Transporter</option>
+                <option value="XL-Transporter">XL-Transporter</option>
+            </select>            
+        </div>
+
+        <!-- Fahrzeugspezifische Eingabefelder -->
+        <h3 class="text-xl font-semibold text-gray-700 mb-4">Fahrzeugspezifische Eingaben</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="mb-4">
+                <label for="kmFactor" class="block text-gray-600 mb-2">Kilometerfaktor:</label>
+                <input type="number" id="kmFactor" value="1" class="w-full p-2 border border-gray-300 rounded-md">
+            </div>
+            <div class="mb-4">
+                <label for="timeFactor" class="block text-gray-600 mb-2">Zeitfaktor:</label>
+                <input type="number" id="timeFactor" value="1" class="w-full p-2 border border-gray-300 rounded-md">
+            </div>
+            <div class="mb-4">
+                <label for="sockelbetrag" class="block text-gray-600 mb-2">Sockelbetrag (€):</label>
+                <div class="relative">
+                    <input type="number" id="sockelbetrag" value="20" class="w-full p-2 pl-10 border border-gray-300 rounded-md">
+                    <span class="absolute left-2 top-2 text-gray-500">€</span>
+                </div>
+            </div>
+        </div>
+
+
+    <script src="main.js"></script>
+    <script src="adressAPI.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAd3pCVCP3vODWkxeLKVcEVt6nBu61FcpU&libraries=places"></script>
+</body>
+</html>
